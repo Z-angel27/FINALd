@@ -1,9 +1,11 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
+import { useTheme } from '../hooks/useTheme'
 
 export default function Header(){
   const { token, logout, role, setRole } = useAuth()
+  const { theme, setTheme } = useTheme()
   return (
     <header className="app-header">
       <div className="brand"><Link to="/">Turnos</Link></div>
@@ -11,6 +13,10 @@ export default function Header(){
         <Link to="/reception">Recepción</Link>
         <Link to="/doctor">Médico</Link>
         <Link to="/display">Display</Link>
+        <select value={theme} onChange={e => setTheme(e.target.value as 'light'|'dark')} style={{marginRight:8}} aria-label="Tema">
+          <option value="light">Claro</option>
+          <option value="dark">Oscuro</option>
+        </select>
         {token ? (
           <>
             <span style={{marginRight:12}}>Rol: {role || '—'}</span>

@@ -1,0 +1,14 @@
+:root {
+  --color-bg: #f5f7fb;
+  --color-card: #fff;
+  --color-primary: #0b5fff;
+  --color-accent: #ffb400;
+  --color-text: #222;
+  --color-muted: #666;
+  --color-border: #e0e4ea;
+  --color-success: #00a676;
+  --color-error: #d9480f;
+  --color-header: #0b5fff;
+  --color-header-text: #fff;
+  --font-main: 'Inter', Arial, sans-serif;
+}

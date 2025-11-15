@@ -47,6 +47,22 @@ export const apiClient = {
     return res.data as Turno
   },
 
+  async reassignTurno(turnoId: string, newClinicId: number, motivo: string, usuarioId?: number) {
+    if (!BASE) return mockApi.reassignTurno(turnoId, newClinicId, motivo)
+    const res = await axios.post(`${BASE}/turnos/${turnoId}/reassign`, {
+      newClinicId,
+      motivo,
+      usuarioId: usuarioId || 1
+    })
+    return res.data as { ok: boolean; turno: Turno }
+  },
+
+  async getTurnoReasignaciones(turnoId: string) {
+    if (!BASE) return []
+    const res = await axios.get(`${BASE}/turnos/${turnoId}/reasignaciones`)
+    return res.data
+  },
+
   subscribe(cb: (q: Record<string, Turno[]>)=>void) {
     if (!BASE) return mockApi.subscribe(cb)
     // Implement a simple SSE fallback if backend provides /events

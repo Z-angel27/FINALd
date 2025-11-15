@@ -84,6 +84,31 @@ export const mockApi = {
     }
     return Promise.resolve(null)
   },
+  reassignTurno(turnoId: string, newClinicId: number, motivo: string) {
+    // Buscar el turno en la clínica actual
+    for (const clinic of Object.keys(queues)) {
+      const idx = queues[clinic].findIndex(x => x.id === turnoId)
+      if (idx >= 0) {
+        const turno = queues[clinic][idx]
+        // Encontrar la nueva clínica
+        const clinics = ['Clinica General', 'Pediatría', 'Traumatología']
+        const newClinic = clinics[newClinicId - 1] || 'Clinica General'
+        
+        // Remover de clínica anterior
+        queues[clinic].splice(idx, 1)
+        
+        // Agregar a nueva clínica con estado 'waiting'
+        turno.clinic = newClinic
+        turno.status = 'waiting'
+        queues[newClinic] = queues[newClinic] || []
+        queues[newClinic].push(turno)
+        
+        broadcast()
+        return Promise.resolve({ ok: true, turno })
+      }
+    }
+    return Promise.resolve({ ok: false, turno: null })
+  },
   subscribe(cb: (q: Queues) => void) {
     const handler = (e: MessageEvent) => {
       if (e?.data?.type === 'update') cb(e.data.payload)

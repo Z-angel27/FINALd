@@ -110,6 +110,40 @@ router.post('/turnos/:id/absent', async (req,res)=>{
   }
 })
 
+// POST /turnos/:id/reassign
+router.post('/turnos/:id/reassign', async (req,res)=>{
+  const id = Number(req.params.id)
+  const { newClinicId, motivo, usuarioId } = req.body
+  if(!newClinicId || !motivo) return res.status(400).json({error:'missing fields: newClinicId and motivo required'})
+  try{
+    const r = await execProcedure('sp_ReasignTurno', [
+      {name:'TurnoId', value:id},
+      {name:'ClinicaNuevaId', value:newClinicId},
+      {name:'Motivo', value:motivo},
+      {name:'UsuarioId', value:usuarioId || 1}
+    ])
+    const pool = await poolPromise
+    const q = await pool.request().execute('sp_GetQueues')
+    publishQueues(transformQueues(q.recordset))
+    res.json({ ok: true, turno: r.recordset[0] })
+  }catch(err){
+    console.error(err)
+    res.status(500).json({error:'server error: ' + (err as any).message})
+  }
+})
+
+// GET /turnos/:id/reasignaciones - historial de reasignaciones
+router.get('/turnos/:id/reasignaciones', async (req,res)=>{
+  const id = Number(req.params.id)
+  try{
+    const r = await execProcedure('sp_GetTurnoReasignaciones', [{name:'TurnoId', value:id}])
+    res.json(r.recordset)
+  }catch(err){
+    console.error(err)
+    res.status(500).json({error:'server error'})
+  }
+})
+
 function transformQueues(rows: any[]){
   const grouped: Record<string, any[]> = {}
   for(const r of rows){

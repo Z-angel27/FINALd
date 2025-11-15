@@ -11,11 +11,16 @@ body{font-family:Inter, Arial, sans-serif;margin:0;color:#222;background:#f5f7fb
 .left.small{flex:0 0 220px}
 .clinic-block{margin-bottom:12px}
 .cola-list{display:flex;flex-direction:column;gap:8px}
-.turno-card{display:flex;justify-content:space-between;padding:8px;background:#fff;border-radius:6px}
+.turno-card{display:flex;justify-content:space-between;padding:8px;background:#fff;border-radius:6px;align-items:center;flex-wrap:wrap}
 .turno-card.waiting{border-left:4px solid #ccc}
 .turno-card.called{border-left:4px solid #ffb400}
 .turno-card.in_consult{border-left:4px solid #00a676}
 .turno-card.done{opacity:0.6}
+.turno-card .left{display:flex;flex-direction:column}
+.turno-card .name{font-weight:500}
+.turno-card .meta{font-size:0.85rem;color:#999}
+.turno-card .right{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.turno-card .status{font-size:0.85rem;padding:2px 6px;background:#f0f0f0;border-radius:4px}
 .display-screen{padding:12px}
 /* Display optimizado */
 .display-screen{padding:12px;min-height:calc(100vh - 56px)}
@@ -39,16 +44,17 @@ body{font-family:Inter, Arial, sans-serif;margin:0;color:#222;background:#f5f7fb
 @media (max-width: 720px){
 	.display-card{min-height:180px;padding:12px}
 	.called-item{font-size:1.3rem}
+	.turno-card{flex-direction:column;align-items:flex-start}
+	.turno-card .right{width:100%;justify-content:flex-start}
 }
-button{cursor:pointer;padding:6px 12px;border:1px solid #ddd;background:#fff;border-radius:4px;color:#333}
+button{cursor:pointer;padding:6px 12px;border:1px solid #ddd;background:#fff;border-radius:4px;color:#333;font-size:inherit;transition:all 0.2s}
 button:hover{background:#f5f5f5}
 button:active{background:#eee}
 button:disabled{opacity:0.6;cursor:not-allowed}
 
 /* Modal styles */
 .modal-backdrop{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;z-index:100}
-.modal-card{background:#fff;padding:20px;border-radius:8px;min-width:300px;max-width:90vw}
-.modal-card h3{margin:0 0 12px 0}
+.modal-card{background:#fff;padding:20px;border-radius:8px;min-width:300px;max-width:90vw}.modal-card h3{margin:0 0 12px 0}
 .modal-body{margin-bottom:12px}
 
 /* Fullscreen Display */

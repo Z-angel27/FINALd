@@ -3,6 +3,7 @@ import { Turno } from '../api/mockApi'
 import { apiClient } from '../api/apiClient'
 import ColaList from '../components/ColaList'
 import Modal from '../components/Modal'
+import ReassignModal from '../components/ReassignModal'
 import { useAuth } from '../contexts/AuthContext'
 
 export default function DoctorPanel() {
@@ -10,6 +11,7 @@ export default function DoctorPanel() {
   const [selectedClinic, setSelectedClinic] = useState<string | null>(null)
   const { role } = useAuth()
   const [confirm, setConfirm] = useState<{action: 'end'|'absent'|null, turnoId?: string} | null>(null)
+  const [reassignModal, setReassignModal] = useState<{turnoId: string, patientName: string, clinic: string} | null>(null)
 
   useEffect(() => {
     const unsub = apiClient.subscribe(q => setQueues(q))
@@ -37,12 +39,19 @@ export default function DoctorPanel() {
     setConfirm({ action: 'absent', turnoId: id })
   }
 
+  const handleReassign = (turnoId: string, patientName: string, clinic: string) => {
+    if (role !== 'doctor' && role !== 'reception') return
+    setReassignModal({ turnoId, patientName, clinic })
+  }
+
   const doConfirmed = async () => {
     if (!confirm || !confirm.turnoId) return setConfirm(null)
     if (confirm.action === 'end') await apiClient.endConsult(confirm.turnoId)
     if (confirm.action === 'absent') await apiClient.markAbsent(confirm.turnoId)
     setConfirm(null)
   }
+
+  const clinics = Object.keys(queues)
 
   return (
     <div className="page">
@@ -51,7 +60,7 @@ export default function DoctorPanel() {
         <aside className="left small">
           <h4>Seleccionar Clínica</h4>
           <ul>
-            {Object.keys(queues).map(c => (
+            {clinics.map(c => (
               <li key={c}>
                 <button className={selectedClinic===c? 'active':''} onClick={() => setSelectedClinic(c)}>{c}</button>
               </li>
@@ -69,13 +78,21 @@ export default function DoctorPanel() {
           {selectedClinic ? (
             <>
               <h3>{selectedClinic}</h3>
-              <ColaList items={queues[selectedClinic] || []} onStart={start} onEnd={end} onAbsent={markAbsent} />
+              <ColaList 
+                items={queues[selectedClinic] || []} 
+                onStart={start} 
+                onEnd={end} 
+                onAbsent={markAbsent}
+                onReassign={handleReassign}
+                clinics={clinics}
+              />
             </>
           ) : (
             <div>Seleccione una clínica para ver la cola</div>
           )}
         </section>
       </div>
+
       {confirm && (
         <Modal title="Confirmar acción" onClose={() => setConfirm(null)}>
           <div>¿Confirma que desea marcar "{confirm.action}" para este paciente?</div>
@@ -84,6 +101,19 @@ export default function DoctorPanel() {
             <button onClick={doConfirmed}>Confirmar</button>
           </div>
         </Modal>
+      )}
+
+      {reassignModal && (
+        <ReassignModal
+          turnoId={reassignModal.turnoId}
+          patientName={reassignModal.patientName}
+          currentClinic={reassignModal.clinic}
+          clinics={clinics}
+          onClose={() => setReassignModal(null)}
+          onSuccess={() => {
+            // La suscripción a cambios se encargará de actualizar
+          }}
+        />
       )}
     </div>
   )
